@@ -2,10 +2,9 @@
 
 #include <iostream>
 #include "util.h"
+#include "pcap_manager.h"
 
 using namespace std;
-
-char * interface = 0;
 
 int main(int argc, char ** argv) {
   cout << "WiFi Math Server\n"
@@ -18,6 +17,7 @@ int main(int argc, char ** argv) {
     return ret;
   }
 
+  initialize();
   // TODO: Actual work
 
   return 0;
