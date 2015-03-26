@@ -21,7 +21,7 @@ Basically, just run the following steps in the source directory:
 ```
 mkdir bin
 cd bin
-cmake ..
+cmake ../src
 make
 ```
 
