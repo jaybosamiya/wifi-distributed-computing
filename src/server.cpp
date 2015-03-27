@@ -25,8 +25,10 @@ int main(int argc, char ** argv) {
 
   while ( true ) {
     Packet p = capture_math_packet(MATH_TYPE_REQUEST);
+    verbose("Received Request Packet");
     make_ack_packet(p); // TODO: Check if this location is OK since it modifies p
     pcap_sendpacket(handle,p.first,p.second);
+    verbose("Sent acknowledgement");
 
     MathPacketHeader *mph = extract_math_packet_header(p);
 
@@ -37,6 +39,8 @@ int main(int argc, char ** argv) {
     while ( !is_capture_math_packet(p_ack_ans,MATH_TYPE_ACK_ANSWER,mph->user_id_of_requester, mph->request_id) ) {
       pcap_sendpacket(handle,answer.first,answer.second);
     }
+
+    verbose("Finished sending reply");
   }
 
   return 0;
