@@ -34,7 +34,11 @@ int main(int argc, char ** argv) {
 
     MathPacketHeader *mph = extract_math_packet_header(p);
 
+    debug("Got mph");
+
     Packet answer = make_answer_packet(p.first);
+
+    debug("Got answer packet");
 
     Packet p_ack_ans;
 

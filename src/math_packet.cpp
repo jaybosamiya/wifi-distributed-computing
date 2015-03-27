@@ -214,6 +214,8 @@ public:
 			error("Mismatched end magic number. Found %d instead.",end_packet_magic_number);
 			abort();
 		}
+
+		debug("Finished reading packet");
 	}
 	Packet conv_to_packet() {
 		Packet ret;
