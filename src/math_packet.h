@@ -57,5 +57,10 @@ int read_answer(Packet &packet);
 
 Packet capture_math_packet();
 Packet capture_math_packet(u_int8_t type);
+Packet capture_math_packet(u_int8_t type, u_int32_t requester);
+Packet capture_math_packet(u_int8_t type, u_int32_t requester, u_int32_t req_id);
+Packet capture_math_packet(u_int8_t type, u_int32_t requester, u_int32_t req_id, u_int32_t sender);
+
+MathPacketHeader* extract_math_packet_header(Packet p);
 
 #endif

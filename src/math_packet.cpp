@@ -316,11 +316,51 @@ Packet capture_math_packet() {
 Packet capture_math_packet(u_int8_t type) {
 	while ( true ) {
 		Packet p = capture_math_packet();
-		MathPacketHeader *mph = (MathPacketHeader*)p.first;
+		MathPacketHeader *mph = extract_math_packet_header(p);
 
 		if ( mph->type_of_packet != type ) {
 			continue;
 		}
 		return p;
 	}
+}
+
+Packet capture_math_packet(u_int8_t type, u_int32_t requester) {
+	while ( true ) {
+		Packet p = capture_math_packet(type);
+		MathPacketHeader *mph = extract_math_packet_header(p);
+
+		if ( mph->user_id_of_requester != requester ) {
+			continue;
+		}
+		return p;
+	}
+}
+
+Packet capture_math_packet(u_int8_t type, u_int32_t requester, u_int32_t req_id) {
+	while ( true ) {
+		Packet p = capture_math_packet(type, requester);
+		MathPacketHeader *mph = extract_math_packet_header(p);
+
+		if ( mph->request_id != req_id ) {
+			continue;
+		}
+		return p;
+	}
+}
+
+Packet capture_math_packet(u_int8_t type, u_int32_t requester, u_int32_t req_id, u_int32_t sender) {
+	while ( true ) {
+		Packet p = capture_math_packet(type, requester, req_id);
+		MathPacketHeader *mph = extract_math_packet_header(p);
+
+		if ( mph->user_id_of_sender != sender ) {
+			continue;
+		}
+		return p;
+	}
+}
+
+MathPacketHeader* extract_math_packet_header(Packet p) {
+	return (MathPacketHeader*)p.first;
 }

@@ -27,74 +27,15 @@ int main(int argc, char ** argv) {
     getline(cin,expression);
     Packet p = make_packet_from_expression(expression);
 
-    pcap_pkthdr hdr;
-    u_char* packet;
-    int length;
-    MathPacketHeader *mph;
+    pcap_sendpacket(handle, p.first, p.second);
+    MathPacketHeader *mph = extract_math_packet_header(p);
+    Packet p_ack = capture_math_packet(MATH_TYPE_ACK_REQUEST, mph->user_id_of_requester, mph->request_id);
 
-    while ( true ) {
-      pcap_sendpacket(handle,p.first,p.second);
+    // TODO: Keep sending until received
 
-      mph = (MathPacketHeader *)p.first;
+    Packet p_ans = capture_math_packet(MATH_TYPE_SEND_ANSWER, mph->user_id_of_requester, mph->request_id, extract_math_packet_header(p_ack)->user_id_of_sender);
 
-      packet = const_cast<u_char*> (pcap_next(handle,&hdr));
-      length = hdr.len;
-
-      Packet p2;
-      p2.first = packet;
-      p2.second = length;
-      p2 = unwrap_datalink(p2);
-
-      MathPacketHeader* mph2 = (MathPacketHeader *)p2.first;
-      if ( mph2->magic_number != MATH_MAGIC ) {
-        continue;
-      }
-
-      if ( mph2->type_of_packet != MATH_TYPE_ACK_REQUEST ) {
-        continue;
-      }
-
-      if ( mph2->user_id_of_requester != mph->user_id_of_requester ) {
-        continue;
-      }
-
-      if ( mph2->request_id != mph2->request_id ) {
-        continue;
-      }
-
-      break;
-    }
-
-    while ( true ) {
-      packet = const_cast<u_char*> (pcap_next(handle,&hdr));
-      length = hdr.len;
-
-      Packet p2;
-      p2.first = packet;
-      p2.second = length;
-      p2 = unwrap_datalink(p2);
-
-      MathPacketHeader* mph2 = (MathPacketHeader *)p2.first;
-      if ( mph2->magic_number != MATH_MAGIC ) {
-        continue;
-      }
-
-      if ( mph2->type_of_packet != MATH_TYPE_SEND_ANSWER ) {
-        continue;
-      }
-
-      if ( mph2->user_id_of_requester != mph->user_id_of_requester ) {
-        continue;
-      }
-
-      if ( mph2->request_id != mph2->request_id ) {
-        continue;
-      }
-
-      cout << "Answer: " << read_answer(p2) << endl;
-
-      break;
-    }
+    cout << "Answer: " << read_answer(p_ans) << "\n\n";
 
   }
 
