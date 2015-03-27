@@ -29,16 +29,19 @@ public:
 	Packet conv_to_packet() {
 		// TODO
 	}
+	u_int16_t get_number_of_operands() const {
+		return operands.size();
+	}
 };
 
-Packet wrap_header(Packet math_packet) {
+Packet wrap_header(Packet math_packet, u_int16_t number_of_operands) {
 	// TODO
 }
 
 Packet make_packet_from_expression(std::string math_expression) {
 	ReversePolishExpression rpe(math_expression);
 	Packet math_packet = rpe.conv_to_packet();
-	return wrap_header(math_packet);
+	return wrap_header(math_packet,rpe.get_number_of_operands());
 }
 
 Packet make_answer_packet(u_char* request_packet) {
