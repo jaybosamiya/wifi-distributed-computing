@@ -30,4 +30,6 @@ int generate_random(int l, int r); // Generates a random integer in range [l,r]
 
 typedef std::pair<u_char*,int> Packet;
 
+void print_packet(Packet p);
+
 #endif

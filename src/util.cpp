@@ -205,3 +205,12 @@ int generate_random(int l, int r) { // Generates a random integer in range [l,r]
   x += l;
   return x;
 }
+
+void print_packet(Packet p) {
+  for ( int i = 0 ; i < p.second ; i++ ) {
+    cout << hex << (int)p.first[i] << ' ';
+    if ( i == 3 || i == 4 || i==8||i==12||i==16||i==18)
+      cout << endl;
+  }
+  cout << endl;
+}
