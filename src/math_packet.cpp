@@ -31,11 +31,16 @@ public:
 	}
 };
 
-std::pair<u_char*,int> make_packet_from_expression(std::string math_expression) {
-	ReversePolishExpression rpe(math_expression);
-	return rpe.conv_to_packet();
+pair<u_char*,int> wrap_header(pair<u_char*,int> math_packet) {
+	// TODO
 }
 
-std::pair<u_char*,int> make_answer_packet(u_char* request_packet) {
+pair<u_char*,int> make_packet_from_expression(std::string math_expression) {
+	ReversePolishExpression rpe(math_expression);
+	pair<u_char*,int> math_packet = rpe.conv_to_packet();
+	return wrap_header(math_packet);
+}
+
+pair<u_char*,int> make_answer_packet(u_char* request_packet) {
 	// TODO
 }
