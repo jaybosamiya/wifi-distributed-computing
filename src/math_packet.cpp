@@ -143,7 +143,28 @@ public:
 		}
 	}
 	Packet conv_to_packet() {
-		// TODO
+		Packet ret;
+		int number_of_operands = get_number_of_operands();
+		int32_t* operands_from_math_packet = (int32_t*) ret.first;
+		for ( int i = 0 ; i < number_of_operands ; i++ ) {
+			*operands_from_math_packet = operands[i];
+			operands_from_math_packet++;
+		}
+		u_int8_t* operators_from_math_packet = (u_int8_t*) operands_from_math_packet;
+		for ( int i = 0 ; i < number_of_operands - 1 ; i++ ) {
+			*operators_from_math_packet = operators[i];
+			operators_from_math_packet++;
+		}
+		for ( int i = 0 ; i < number_of_operands - 1 ; i++ ) {
+			*operators_from_math_packet = number_of_operators_after_operand[i];
+			operators_from_math_packet++;
+		}
+		int32_t* answer = (int32_t*) operands_from_math_packet;
+		*answer = 0;
+		answer++;
+		u_int16_t* end_packet_magic_number = (u_int16_t*)answer;
+		*end_packet_magic_number = 21845;
+		return ret;
 	}
 	Packet conv_to_ans_packet() {
 		Packet temp = conv_to_packet();
