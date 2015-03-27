@@ -233,8 +233,8 @@ public:
 		location += number_of_operands;
 		memcpy(location,&answer,4);
 		location += 4;
-		memcpy(location,&end_packet_magic_number,4);
-		location += 4;
+		memcpy(location,&end_packet_magic_number,2);
+		location += 2;
 		return ret;
 	}
 	Packet conv_to_ans_packet() {
