@@ -186,3 +186,10 @@ float Timer::get_time() {
   clock_gettime(CLOCK_MONOTONIC_COARSE,&temp);
   return diff(start_time,temp);
 }
+
+int generate_random(int l, int r) { // Generates a random integer in range [l,r]
+  int x = random();
+  x %= (r-l+1);
+  x += l;
+  return x;
+}

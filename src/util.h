@@ -25,4 +25,6 @@ public:
   Timer();
 };
 
+int generate_random(int l, int r); // Generates a random integer in range [l,r]
+
 #endif
