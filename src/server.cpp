@@ -26,6 +26,7 @@ int main(int argc, char ** argv) {
   while ( true ) {
     Packet p = capture_math_packet(MATH_TYPE_REQUEST);
     verbose("Received Request Packet");
+    print_packet(p);
     make_ack_packet(p); // TODO: Check if this location is OK since it modifies p
     pcap_sendpacket(handle,p.first,p.second);
     verbose("Sent acknowledgement");
