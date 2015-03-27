@@ -4,6 +4,7 @@
 #include "util.h"
 #include "protocol_headers.h"
 #include <cstdlib>
+#include <cstring>
 #include <pcap.h>
 
 pcap_t *handle = NULL;
@@ -66,8 +67,48 @@ void initialize() {
   debug("Datalink is %d.", datalink);
 }
 
+u_char PRISM_WRAPPER[] = {
+  0x00, 0x00, 0x00, 0x41,             // msgcode
+  0x00, 0x00, 0x00, 0x08,             // msglen
+};
+
+u_char RADIOTAP_WRAPPER[] = {
+  0x00,                   // it_version
+  0x00, 0x00,             // padding
+  0x00, 0x09,             // length
+  0x00, 0x00, 0x00, 0x00, // Don't put any fields
+};
+
+const Packet PRISM_WRAP(PRISM_WRAPPER,sizeof(PRISM_WRAPPER));
+const Packet RADIOTAP_WRAP(RADIOTAP_WRAPPER,sizeof(RADIOTAP_WRAPPER));
+
+Packet wrap_packet_with(Packet p, Packet wrap) {
+  u_char* packet = new u_char[p.second+wrap.second];
+  int length = p.second+wrap.second;
+
+  memcpy(packet,wrap.first,wrap.second);
+  memcpy(packet+wrap.second,p.first,p.second);
+
+  Packet ret;
+  ret.first = packet;
+  ret.second = length;
+  return ret;
+}
+
 Packet wrap_datalink(Packet p) {
-  // TODO
+  if ( p.first == NULL ) {
+    return p;
+  }
+
+  if ( datalink ==  DLT_PRISM_HEADER ) {
+    p = wrap_packet_with(p,PRISM_WRAP);
+  }
+
+  if ( datalink == DLT_IEEE802_11_RADIO ) {
+    p = wrap_packet_with(p,RADIOTAP_WRAP);
+  }
+
+  return p;
 }
 
 Packet unwrap_datalink(Packet p) {
