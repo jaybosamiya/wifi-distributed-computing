@@ -84,7 +84,7 @@ int handle_params(int argc, char ** argv) {
             "\n"
             "Note: This program needs to be run as root\n"
     ;
-    return ( geteuid() );
+    return -1;
   }
 
   while (optind < argc) {
