@@ -49,6 +49,7 @@ u_int16_t end_packet_magic_number; // Must be set to 21845
 typedef std::pair<u_char*,int> Packet;
 
 Packet make_packet_from_expression(std::string math_expression);
+void make_ack_packet(Packet &packet);
 Packet make_answer_packet(u_char* request_packet);
 
 #endif
