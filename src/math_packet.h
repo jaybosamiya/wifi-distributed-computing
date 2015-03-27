@@ -53,5 +53,6 @@ typedef std::pair<u_char*,int> Packet;
 Packet make_packet_from_expression(std::string math_expression);
 void make_ack_packet(Packet &packet);
 Packet make_answer_packet(u_char* request_packet);
+int read_answer(Packet &packet);
 
 #endif

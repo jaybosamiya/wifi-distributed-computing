@@ -282,3 +282,8 @@ Packet make_answer_packet(u_char* request_packet) {
 	Packet wrapped_packet = wrap_header(rpe.conv_to_ans_packet(),rpe.get_number_of_operands(),MATH_TYPE_SEND_ANSWER);
 	return wrapped_packet;
 }
+
+int read_answer(Packet &packet) {
+	MathPacketHeader *mph = (MathPacketHeader*) packet.first;
+	return *(int32_t*)(packet.first+sizeof(MathPacketHeader)+6*mph->number_of_operands-1);
+}
