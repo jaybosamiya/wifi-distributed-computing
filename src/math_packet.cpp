@@ -22,11 +22,7 @@ public:
 	ReversePolishExpression(u_char* math_packet, u_int16_t number_of_operands) {
 		// TODO
 	}
-	int32_t solve() {
-		return 0;
-		// TODO
-	}
-	Packet conv_to_packet(int ans) {
+	Packet conv_to_ans_packet() {
 		// TODO
 	}
 	Packet conv_to_packet() {
@@ -77,5 +73,8 @@ Packet make_packet_from_expression(std::string math_expression) {
 }
 
 Packet make_answer_packet(u_char* request_packet) {
-	// TODO
+	MathPacketHeader *mph = (MathPacketHeader*) request_packet;
+	ReversePolishExpression rpe(request_packet+sizeof(MathPacketHeader),mph->number_of_operands);
+	Packet wrapped_packet = wrap_header(rpe.conv_to_ans_packet(),rpe.get_number_of_operands(),MATH_TYPE_SEND_ANSWER);
+	return wrapped_packet;
 }
