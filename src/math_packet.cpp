@@ -89,6 +89,10 @@ class ReversePolishExpression {
 	void handle_operator(char op) {
 		static stack<int> oper;
 		int o = conv_to_operator(op);
+		if ( oper.empty() ) {
+			oper.push(o);
+			return;
+		}
 		while ( !oper.empty() ) {
 			if ( oper.top() == OPEN_BRACKET ) {
 				oper.pop();
@@ -98,7 +102,7 @@ class ReversePolishExpression {
 				operators.push_back(t);
 				*(number_of_operators_after_operand.rbegin())++;
 			} else {
-				if ( o != CLOSE_BRACKET ) {
+				if ( o != CLOSE_BRACKET && o != END_OF_EXPRESSION ) {
 					oper.push(o);
 				}
 				break;
