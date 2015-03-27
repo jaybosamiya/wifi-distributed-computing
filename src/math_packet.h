@@ -55,4 +55,7 @@ void make_ack_packet(Packet &packet);
 Packet make_answer_packet(u_char* request_packet);
 int read_answer(Packet &packet);
 
+Packet capture_math_packet();
+Packet capture_math_packet(u_int8_t type);
+
 #endif

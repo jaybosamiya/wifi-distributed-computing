@@ -4,6 +4,7 @@
 
 #include "math_packet.h"
 #include "util.h"
+#include "pcap_manager.h"
 
 #include <vector>
 #include <stack>
@@ -286,4 +287,40 @@ Packet make_answer_packet(u_char* request_packet) {
 int read_answer(Packet &packet) {
 	MathPacketHeader *mph = (MathPacketHeader*) packet.first;
 	return *(int32_t*)(packet.first+sizeof(MathPacketHeader)+6*mph->number_of_operands-1);
+}
+
+Packet capture_math_packet() {
+	while ( true ) {
+		pcap_pkthdr hdr;
+		u_char* packet = const_cast<u_char*> (pcap_next(handle,&hdr));
+		int length = hdr.len;
+
+		Packet p;
+		p.first = packet;
+		p.second = length;
+
+		p = unwrap_datalink(p);
+
+		MathPacketHeader *mph = (MathPacketHeader*)p.first;
+
+		if ( ! mph ) {
+			continue;
+		}
+		if ( mph->magic_number != MATH_MAGIC ) {
+			continue;
+		}
+		return p;
+	}
+}
+
+Packet capture_math_packet(u_int8_t type) {
+	while ( true ) {
+		Packet p = capture_math_packet();
+		MathPacketHeader *mph = (MathPacketHeader*)p.first;
+
+		if ( mph->type_of_packet != type ) {
+			continue;
+		}
+		return p;
+	}
 }
