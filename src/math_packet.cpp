@@ -153,11 +153,11 @@ class ReversePolishExpression {
 
 	int32_t get_answer() {
 		stack<int32_t> s;
-		int i = 0, j = 0;
-		while ( true ) {
+		int k = 0;
+		for ( int i = 0 ; i < operands.size() ; i++ ) {
 			s.push(operands[i]);
-			for ( int k = 0 ; k < number_of_operators_after_operand[i] ; k++ ) {
-				u_int8_t o = operators[j++];
+			for ( int j = 0 ; j < number_of_operators_after_operand[i] ; j++ ) {
+				u_int8_t o = operators[k++];
 				if ( s.empty() ) {
 					error("Stack Underflow");
 					abort();
@@ -170,7 +170,8 @@ class ReversePolishExpression {
 				}
 				int32_t a = s.top();
 				s.pop();
-				s.push(run_op(a,o,b));
+				int32_t ans = run_op(a,o,b);
+				s.push(ans);
 			}
 		}
 		if ( ! s.size() == 1 ) {
@@ -291,7 +292,7 @@ Packet make_answer_packet(u_char* request_packet) {
 
 int read_answer(Packet &packet) {
 	MathPacketHeader *mph = (MathPacketHeader*) packet.first;
-	return *(int32_t*)(packet.first+sizeof(MathPacketHeader)+6*mph->number_of_operands-1);
+	return *(int32_t*)(packet.first+sizeof(MathPacketHeader)+6*mph->number_of_operands-2);
 }
 
 Packet capture_math_packet() {
