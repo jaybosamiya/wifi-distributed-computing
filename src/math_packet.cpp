@@ -234,11 +234,12 @@ void make_ack_packet(Packet &packet) {
 		mph->type_of_packet = MATH_TYPE_ACK_REQUEST;
 	else if ( mph->type_of_packet == MATH_TYPE_SEND_ANSWER )
 		mph->type_of_packet = MATH_TYPE_ACK_ANSWER;
+	mph->user_id_of_sender = own_id;
 }
 
 Packet wrap_header(Packet math_packet, u_int16_t number_of_operands, u_int8_t type_of_packet) {
 	MathPacketHeader mph;
-	mph.magic_number = 9770010;
+	mph.magic_number = MATH_MAGIC;
 	mph.type_of_packet = type_of_packet;
 	mph.user_id_of_requester = own_id;
 	mph.user_id_of_sender = 0;

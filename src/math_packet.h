@@ -15,8 +15,10 @@ const u_int8_t
 	MATH_TYPE_SEND_ANSWER = 4, // Send answer
 	MATH_TYPE_ACK_ANSWER  = 8; // Acknowledge received answer
 
+const u_int32_t MATH_MAGIC = 9770010;
+
 struct MathPacketHeader {
-	u_int32_t magic_number; // Must be set to 9770010
+	u_int32_t magic_number; // Must be set to MATH_MAGIC
 	u_int8_t type_of_packet; // MATH_TYPE_*
 	u_int32_t user_id_of_requester; // Single unique integer, upto 4294967295
 	u_int32_t user_id_of_sender; // Single unique integer, upto 4294967295
