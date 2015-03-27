@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <stack>
+#include <cstring>
 
 using namespace std;
 
@@ -208,26 +209,20 @@ public:
 	Packet conv_to_packet() {
 		Packet ret;
 		int number_of_operands = get_number_of_operands();
-		ret.first = new u_char[6*number_of_operands+4];
-		int32_t* operands_from_math_packet = (int32_t*) ret.first;
-		for ( int i = 0 ; i < number_of_operands ; i++ ) {
-			*operands_from_math_packet = operands[i];
-			operands_from_math_packet++;
-		}
-		u_int8_t* operators_from_math_packet = (u_int8_t*) operands_from_math_packet;
-		for ( int i = 0 ; i < number_of_operands - 1 ; i++ ) {
-			*operators_from_math_packet = operators[i];
-			operators_from_math_packet++;
-		}
-		for ( int i = 0 ; i < number_of_operands - 1 ; i++ ) {
-			*operators_from_math_packet = number_of_operators_after_operand[i];
-			operators_from_math_packet++;
-		}
-		int32_t* answer = (int32_t*) operands_from_math_packet;
-		*answer = 0;
-		answer++;
-		u_int16_t* end_packet_magic_number = (u_int16_t*)answer;
-		*end_packet_magic_number = 21845;
+		int answer = 0;
+		int end_packet_magic_number = 21845;
+		u_char* location = ret.first = new u_char[6*number_of_operands+4];
+		ret.second = 6*number_of_operands+4;
+		memcpy(location,&operands[0],number_of_operands*4);
+		location += number_of_operands*4;
+		memcpy(location,&operators[0],number_of_operands-1);
+		location += number_of_operands-1;
+		memcpy(location,&number_of_operators_after_operand[0],number_of_operands);
+		location += number_of_operands;
+		memcpy(location,&answer,4);
+		location += 4;
+		memcpy(location,&end_packet_magic_number,4);
+		location += 4;
 		return ret;
 	}
 	Packet conv_to_ans_packet() {
@@ -259,10 +254,10 @@ Packet wrap_header(Packet math_packet, u_int16_t number_of_operands, u_int8_t ty
 	mph.request_id = generate_random(1,4294967295);
 	mph.number_of_operands = number_of_operands;
 	Packet ret;
-	ret.second = math_packet.second + sizeof(mph);
+	int header_size = 19;
+	ret.second = math_packet.second + header_size;
 	ret.first = new u_char[ret.second];
 
-	int header_size = sizeof(mph);
 	int math_packet_size = math_packet.second;
 
 	for ( int i = 0 ; i < header_size ; i++ ) {
