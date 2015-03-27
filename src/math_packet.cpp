@@ -6,6 +6,7 @@
 #include "util.h"
 
 #include <vector>
+#include <stack>
 
 using namespace std;
 
@@ -15,12 +16,128 @@ class ReversePolishExpression {
 	vector<int32_t> operands;
 	vector<u_int8_t> operators;
 	vector<u_int8_t> number_of_operators_after_operand;
+
+	static const char * read_int ( const char * str, int & v ) {
+		v = 0;
+		int i = 0;
+		while ( ! (str[i] >= '0' && str[i] <= '9') && str[i] ) {
+			i++;
+		}
+		for ( ; str[i] ; i++ ) {
+			if ( str[i] >= '0' && str[i] <= '9' ) {
+				v *= 10;
+				v += (str[i] - '0');
+			} else {
+				break;
+			}
+		}
+		return (str+i);
+	}
+
+	static const int OPEN_BRACKET = -1, CLOSE_BRACKET = -2, END_OF_EXPRESSION = -3;
+
+	static int conv_to_operator(char op) {
+		if (op == '+') return MATH_OPERATOR_PLUS;
+		if (op == '-') return MATH_OPERATOR_MINUS;
+		if (op == '*') return MATH_OPERATOR_MULTIPLY;
+		if (op == '/') return MATH_OPERATOR_DIVIDE;
+		if (op == '%') return MATH_OPERATOR_MODULO;
+		if (op == '&') return MATH_OPERATOR_BITWISE_AND;
+		if (op == '|') return MATH_OPERATOR_BITWISE_OR;
+		if (op == '^') return MATH_OPERATOR_BITWISE_XOR;
+		if (op == '(') return OPEN_BRACKET;
+		if (op == ')') return CLOSE_BRACKET;
+		if (op == '\0') return END_OF_EXPRESSION;
+		error("Unknown operator %c", op);
+		abort();
+	}
+
+	static int precedence(int op) {
+		switch(op) {
+			case END_OF_EXPRESSION:
+			case OPEN_BRACKET:
+			case CLOSE_BRACKET:
+				return 0;
+			case MATH_OPERATOR_MULTIPLY:
+			case MATH_OPERATOR_DIVIDE:
+			case MATH_OPERATOR_MODULO:
+				return -1;
+			case MATH_OPERATOR_PLUS:
+			case MATH_OPERATOR_MINUS:
+				return -2;
+			case MATH_OPERATOR_BITWISE_AND:
+				return -3;
+			case MATH_OPERATOR_BITWISE_OR:
+				return -4;
+			case MATH_OPERATOR_BITWISE_XOR:
+				return -4;
+		}
+		// if the control reaches here
+		error("Unknown operator type %d", op);
+		abort();
+	}
+
+	void handle_operator(char op) {
+		static stack<int> oper;
+		int o = conv_to_operator(op);
+		while ( !oper.empty() ) {
+			if ( oper.top() == OPEN_BRACKET ) {
+				oper.pop();
+			} else if ( precedence(oper.top()) <= precedence(o) ) {
+				int t = oper.top();
+				oper.pop();
+				operators.push_back(t);
+				*(number_of_operators_after_operand.rbegin())++;
+			} else {
+				if ( o != CLOSE_BRACKET ) {
+					oper.push(o);
+				}
+				break;
+			}
+		}
+	}
 public:
 	ReversePolishExpression(std::string math_expression) {
-		// TODO
+		const char * c = math_expression.c_str();
+		while ( *c ) {
+			int v;
+			c = read_int(c,v);
+			operands.push_back(v);
+			number_of_operators_after_operand.push_back(0);
+			while ( *c == ' ' || *c == '\t' ) {
+				c++;
+			}
+			handle_operator(*c);
+			c++;
+		}
+		handle_operator('\0');
+		if ( operators.size() != operands.size() - 1 ) {
+			error("Wrong number of operators/operands");
+			abort();
+		}
 	}
 	ReversePolishExpression(u_char* math_packet, u_int16_t number_of_operands) {
-		// TODO
+		int32_t* operands_from_math_packet = (int32_t*) math_packet;
+		for ( int i = 0 ; i < number_of_operands ; i++ ) {
+			operands.push_back(*operands_from_math_packet);
+			operands_from_math_packet++;
+		}
+		u_int8_t* operators_from_math_packet = (u_int8_t*) operands_from_math_packet;
+		for ( int i = 0 ; i < number_of_operands - 1 ; i++ ) {
+			operators.push_back(*operators_from_math_packet);
+			operators_from_math_packet++;
+		}
+		for ( int i = 0 ; i < number_of_operands - 1 ; i++ ) {
+			number_of_operators_after_operand.push_back(*operators_from_math_packet);
+			operators_from_math_packet++;
+		}
+		operands_from_math_packet = (int32_t*) operands_from_math_packet;
+		operands_from_math_packet++;
+		u_int16_t end_packet_magic_number = *(u_int16_t*)operands_from_math_packet;
+		if ( end_packet_magic_number != 21845 ) {
+			error("Mismatched end magic number. Found %d instead.",end_packet_magic_number);
+			abort();
+		}
 	}
 	Packet conv_to_ans_packet() {
 		// TODO
