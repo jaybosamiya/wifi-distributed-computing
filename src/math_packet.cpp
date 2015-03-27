@@ -38,7 +38,11 @@ public:
 };
 
 void make_ack_packet(Packet &packet) {
-
+	MathPacketHeader *mph = (MathPacketHeader*) packet.first;
+	if ( mph->type_of_packet == MATH_TYPE_REQUEST )
+		mph->type_of_packet = MATH_TYPE_ACK_REQUEST;
+	else if ( mph->type_of_packet == MATH_TYPE_SEND_ANSWER )
+		mph->type_of_packet = MATH_TYPE_ACK_ANSWER;
 }
 
 Packet wrap_header(Packet math_packet, u_int16_t number_of_operands, u_int8_t type_of_packet) {
