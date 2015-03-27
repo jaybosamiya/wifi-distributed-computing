@@ -1,7 +1,7 @@
 /* server.cpp */
 
 #include <iostream>
-#include <string>
+#include <unistd.h>
 #include "util.h"
 #include "pcap_manager.h"
 #include "math_packet.h"
@@ -9,7 +9,7 @@
 using namespace std;
 
 int main(int argc, char ** argv) {
-  cout << "WiFi Math Server\n"
+  cout << "WiFi Math Client\n"
           "----------------\tBy Jay H. Bosamiya\n"
           "                \t------------------\n\n";
 
@@ -21,36 +21,55 @@ int main(int argc, char ** argv) {
 
   initialize();
 
+  verbose("Initialization done.");
+
   while ( true ) {
-    cout << "Enter a math expression: ";
-    string expression;
-    getline(cin,expression);
-    Packet p = make_packet_from_expression(expression);
-
     pcap_pkthdr hdr;
-    u_char* packet;
-    int length;
-    MathPacketHeader *mph;
+    u_char* packet = const_cast<u_char*> (pcap_next(handle,&hdr));
+
+    int length = hdr.len;
+    Packet p;
+    p.first = packet;
+    p.second = length;
+    p = unwrap_datalink(p);
+
+    MathPacketHeader *mph = (MathPacketHeader *)p.first;
+
+    if ( !mph ) {
+      continue;
+    }
+
+    if ( mph->magic_number != MATH_MAGIC ) {
+      continue;
+    }
+
+    verbose("Captured a MATH packet");
+
+    if ( mph->type_of_packet != MATH_TYPE_REQUEST ) {
+      continue;
+    }
+
+    Packet answer = make_answer_packet(p.first);
+    make_ack_packet(p);
+
+    pcap_sendpacket(handle,p.first,p.second);
 
     while ( true ) {
-      pcap_sendpacket(handle,p.first,p.second);
-
-      mph = (MathPacketHeader *)p.first;
+      pcap_sendpacket(handle,answer.first,answer.second);
 
       packet = const_cast<u_char*> (pcap_next(handle,&hdr));
       length = hdr.len;
 
-      Packet p2;
-      p2.first = packet;
-      p2.second = length;
-      p2 = unwrap_datalink(p2);
+      p.first = packet;
+      p.second = length;
+      p = unwrap_datalink(p);
 
-      MathPacketHeader* mph2 = (MathPacketHeader *)p2.first;
+      MathPacketHeader* mph2 = (MathPacketHeader *)p.first;
       if ( mph2->magic_number != MATH_MAGIC ) {
         continue;
       }
 
-      if ( mph2->type_of_packet != MATH_TYPE_ACK_REQUEST ) {
+      if ( mph2->type_of_packet != MATH_TYPE_ACK_ANSWER ) {
         continue;
       }
 
@@ -64,38 +83,6 @@ int main(int argc, char ** argv) {
 
       break;
     }
-
-    while ( true ) {
-      packet = const_cast<u_char*> (pcap_next(handle,&hdr));
-      length = hdr.len;
-
-      Packet p2;
-      p2.first = packet;
-      p2.second = length;
-      p2 = unwrap_datalink(p2);
-
-      MathPacketHeader* mph2 = (MathPacketHeader *)p2.first;
-      if ( mph2->magic_number != MATH_MAGIC ) {
-        continue;
-      }
-
-      if ( mph2->type_of_packet != MATH_TYPE_SEND_ANSWER ) {
-        continue;
-      }
-
-      if ( mph2->user_id_of_requester != mph->user_id_of_requester ) {
-        continue;
-      }
-
-      if ( mph2->request_id != mph2->request_id ) {
-        continue;
-      }
-
-      cout << "Answer: " << read_answer(p2) << endl;
-
-      break;
-    }
-
   }
 
   return 0;
