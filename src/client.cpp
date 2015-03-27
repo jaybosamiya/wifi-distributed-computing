@@ -29,9 +29,11 @@ int main(int argc, char ** argv) {
 
     pcap_sendpacket(handle, p.first, p.second);
     MathPacketHeader *mph = extract_math_packet_header(p);
-    Packet p_ack = capture_math_packet(MATH_TYPE_ACK_REQUEST, mph->user_id_of_requester, mph->request_id);
+    Packet p_ack;
 
-    // TODO: Keep sending until received
+    while (!is_capture_math_packet(p_ack, MATH_TYPE_ACK_REQUEST, mph->user_id_of_requester, mph->request_id) ) {
+      pcap_sendpacket(handle, p.first, p.second);
+    }
 
     Packet p_ans = capture_math_packet(MATH_TYPE_SEND_ANSWER, mph->user_id_of_requester, mph->request_id, extract_math_packet_header(p_ack)->user_id_of_sender);
 
