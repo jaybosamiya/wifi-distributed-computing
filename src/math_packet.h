@@ -39,7 +39,7 @@ const u_int8_t
 The MathPacket is defined by the following:
 
 int32_t operands[number_of_operands];
-u_int8_t operator[number_of_operands-1]; // Defined by the MATH_OPERATOR_* constants
+u_int8_t operators[number_of_operands-1]; // Defined by the MATH_OPERATOR_* constants
 u_int8_t number_of_operators_after_operand[number_of_operands]; // The positions of the operators is as required for Reverse Polish Notation.
 int32_t answer; // Expected to be 0 when requesting for an answer
 u_int16_t end_packet_magic_number; // Must be set to 21845
