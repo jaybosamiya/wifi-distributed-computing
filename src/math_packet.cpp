@@ -18,9 +18,14 @@ class ReversePolishExpression {
 	vector<u_int8_t> number_of_operators_after_operand;
 
 	static const char * read_int ( const char * str, int & v ) {
+		bool is_negative = false;
 		v = 0;
 		int i = 0;
-		while ( ! (str[i] >= '0' && str[i] <= '9') && str[i] ) {
+		while ( ! (str[i] >= '0' && str[i] <= '9' || str[i] == '-') && str[i] ) {
+			i++;
+		}
+		if ( str[i] == '-' ) {
+			is_negative = true;
 			i++;
 		}
 		for ( ; str[i] ; i++ ) {
@@ -30,6 +35,9 @@ class ReversePolishExpression {
 			} else {
 				break;
 			}
+		}
+		if ( is_negative ) {
+			v = -v;
 		}
 		return (str+i);
 	}
