@@ -96,8 +96,58 @@ class ReversePolishExpression {
 			}
 		}
 	}
+
+	static int32_t run_op(int32_t a, u_int8_t o, int32_t b) {
+		switch(o) {
+			case MATH_OPERATOR_PLUS:
+				return a + b;
+			case MATH_OPERATOR_MINUS:
+				return a - b;
+			case MATH_OPERATOR_MULTIPLY:
+				return a * b;
+			case MATH_OPERATOR_DIVIDE:
+				return a / b;
+			case MATH_OPERATOR_MODULO:
+				return a % b;
+			case MATH_OPERATOR_BITWISE_AND:
+				return a & b;
+			case MATH_OPERATOR_BITWISE_OR:
+				return a | b;
+			case MATH_OPERATOR_BITWISE_XOR:
+				return a ^ b;
+		}
+		// If it reaches here, unknown operator
+		error("Unknown operator %d", o);
+		abort();
+	}
+
 	int32_t get_answer() {
-		// TODO
+		stack<int32_t> s;
+		int i = 0, j = 0;
+		while ( true ) {
+			s.push(operands[i]);
+			for ( int k = 0 ; k < number_of_operators_after_operand[i] ; k++ ) {
+				u_int8_t o = operators[j++];
+				if ( s.empty() ) {
+					error("Stack Underflow");
+					abort();
+				}
+				int32_t b = s.top();
+				s.pop();
+				if ( s.empty() ) {
+					error("Stack Underflow");
+					abort();
+				}
+				int32_t a = s.top();
+				s.pop();
+				s.push(run_op(a,o,b));
+			}
+		}
+		if ( ! s.size() == 1 ) {
+			error("Improper stack size %d", s.size());
+			abort();
+		}
+		return s.top();
 	}
 public:
 	ReversePolishExpression(std::string math_expression) {
