@@ -195,6 +195,7 @@ public:
 	Packet conv_to_packet() {
 		Packet ret;
 		int number_of_operands = get_number_of_operands();
+		ret.first = new u_char[6*number_of_operands+4];
 		int32_t* operands_from_math_packet = (int32_t*) ret.first;
 		for ( int i = 0 ; i < number_of_operands ; i++ ) {
 			*operands_from_math_packet = operands[i];
