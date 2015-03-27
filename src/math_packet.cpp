@@ -225,16 +225,29 @@ public:
 		int end_packet_magic_number = 21845;
 		ret.second = 6*number_of_operands+5;
 		u_char* location = ret.first = new u_char[ret.second];
-		memcpy(location,&operands[0],number_of_operands*4);
-		location += number_of_operands*4;
-		memcpy(location,&operators[0],number_of_operands-1);
-		location += number_of_operands-1;
-		memcpy(location,&number_of_operators_after_operand[0],number_of_operands);
-		location += number_of_operands;
-		memcpy(location,&answer,4);
-		location += 4;
-		memcpy(location,&end_packet_magic_number,2);
-		location += 2;
+
+		int cur = 0;
+
+		memcpy(location+cur,&operands[0],number_of_operands*4);
+		cur += number_of_operands*4;
+
+		memcpy(location+cur,&operators[0],number_of_operands-1);
+		cur += number_of_operands-1;
+
+		memcpy(location+cur,&number_of_operators_after_operand[0],number_of_operands);
+		cur += number_of_operands;
+
+		memcpy(location+cur,&answer,4);
+		cur += 4;
+
+		memcpy(location+cur,&end_packet_magic_number,2);
+		cur += 2;
+
+		if ( cur != ret.second ) {
+			error("Something terrible happened. %d != %d", cur, ret.second);
+			abort();
+		}
+
 		return ret;
 	}
 	Packet conv_to_ans_packet() {
