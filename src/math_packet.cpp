@@ -223,8 +223,8 @@ public:
 		int number_of_operands = get_number_of_operands();
 		int answer = 0;
 		int end_packet_magic_number = 21845;
-		u_char* location = ret.first = new u_char[6*number_of_operands+5];
 		ret.second = 6*number_of_operands+5;
+		u_char* location = ret.first = new u_char[ret.second];
 		memcpy(location,&operands[0],number_of_operands*4);
 		location += number_of_operands*4;
 		memcpy(location,&operators[0],number_of_operands-1);
