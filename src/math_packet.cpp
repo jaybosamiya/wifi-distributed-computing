@@ -49,12 +49,27 @@ Packet wrap_header(Packet math_packet, u_int16_t number_of_operands, u_int8_t ty
 	mph.user_id_of_sender = 0;
 	mph.request_id = generate_random(1,4294967295);
 	mph.number_of_operands = number_of_operands;
+	Packet ret;
+	ret.second = math_packet.second + sizeof(mph);
+	ret.first = new u_char[ret.second];
+
+	int header_size = sizeof(mph);
+	int math_packet_size = math_packet.second;
+
+	for ( int i = 0 ; i < header_size ; i++ ) {
+		ret.first[i] = ((u_char*)&mph)[i];
+	}
+	for ( int i = 0 ; i < math_packet_size ; i++ ) {
+		ret.first[i+header_size] = math_packet.first[i];
+	}
+
+	return ret;
 }
 
 Packet make_packet_from_expression(std::string math_expression) {
 	ReversePolishExpression rpe(math_expression);
-	Packet math_packet = rpe.conv_to_packet();
-	return wrap_header(math_packet,rpe.get_number_of_operands(),MATH_TYPE_REQUEST);
+	Packet wrapped_packet = wrap_header(rpe.conv_to_packet(),rpe.get_number_of_operands(),MATH_TYPE_REQUEST);
+	return wrapped_packet;
 }
 
 Packet make_answer_packet(u_char* request_packet) {
