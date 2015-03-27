@@ -56,6 +56,19 @@ void initialize() {
     abort();
   }
 
+  struct bpf_program fp;   /* The compiled filter expression */
+  char filter_exp[] = "ether[0]==0x1a && ether[1]==0x14 && ether[2]==0x95 && ether[3]==0x00"; /* The filter expression */
+
+  if (pcap_compile(handle, &fp, filter_exp, 0, 0) == -1) {
+    error("Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(handle));
+    abort();
+  }
+
+  if (pcap_setfilter(handle, &fp) == -1) {
+    error("Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
+    abort();
+  }
+
   if ( pcap_setnonblock(handle,1,errbuf) == -1 ) {
     error("Couldn't set to non-blocking mode. Error: %s",errbuf);
     abort();
