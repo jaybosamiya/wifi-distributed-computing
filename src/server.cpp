@@ -33,9 +33,9 @@ int main(int argc, char ** argv) {
     pcap_sendpacket(handle,p_ack.first,p_ack.second);
     verbose("Sent acknowledgement");
 
-    for ( int i = 0 ; i < 10 ; i++ ) {
+    for ( int i = 0 ; i < 1000 ; i++ ) {
       pcap_sendpacket(handle,p_ack.first,p_ack.second);
-      usleep(100000); // To simulate computation time
+      usleep(1000); // To simulate computation time
     }
 
     MathPacketHeader *mph = extract_math_packet_header(p);

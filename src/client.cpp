@@ -41,9 +41,9 @@ int main(int argc, char ** argv) {
     int counter = 0;
 
     while (!is_capture_math_packet(p_ack, MATH_TYPE_ACK_REQUEST, mph->user_id_of_requester, mph->request_id) ) {
+      counter = (counter+1)%2000;
       if ( counter == 0 )
         pcap_sendpacket(handle, p.first, p.second);
-      counter = (counter+1)%20;
       usleep(100);
     }
 
