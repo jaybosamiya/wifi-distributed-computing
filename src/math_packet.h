@@ -24,7 +24,7 @@ struct MathPacketHeader {
 	u_int32_t user_id_of_sender; // Single unique integer, upto 4294967295
 	u_int32_t request_id; // Single unique integer, upto 4294967295
 	u_int16_t number_of_operands;
-};
+} __attribute__((__packed__));
 
 const u_int8_t
 	MATH_OPERATOR_PLUS        = 1,

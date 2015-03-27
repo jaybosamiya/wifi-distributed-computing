@@ -199,23 +199,17 @@ public:
 		}
 	}
 	ReversePolishExpression(u_char* math_packet, u_int16_t number_of_operands) {
-		int32_t* operands_from_math_packet = (int32_t*) math_packet;
-		for ( int i = 0 ; i < number_of_operands ; i++ ) {
-			operands.push_back(*operands_from_math_packet);
-			operands_from_math_packet++;
-		}
-		u_int8_t* operators_from_math_packet = (u_int8_t*) operands_from_math_packet;
-		for ( int i = 0 ; i < number_of_operands - 1 ; i++ ) {
-			operators.push_back(*operators_from_math_packet);
-			operators_from_math_packet++;
-		}
-		for ( int i = 0 ; i < number_of_operands - 1 ; i++ ) {
-			number_of_operators_after_operand.push_back(*operators_from_math_packet);
-			operators_from_math_packet++;
-		}
-		operands_from_math_packet = (int32_t*) operands_from_math_packet;
-		operands_from_math_packet++;
-		u_int16_t end_packet_magic_number = *(u_int16_t*)operands_from_math_packet;
+		operands.resize(number_of_operands);
+		operators.resize(number_of_operands-1);
+		number_of_operators_after_operand.resize(number_of_operands);
+
+		memcpy(&operands[0],math_packet,4*number_of_operands);
+		memcpy(&operators[0],math_packet+4*number_of_operands,number_of_operands-1);
+		memcpy(&number_of_operators_after_operand[0],math_packet+5*number_of_operands-1,number_of_operands);
+
+		u_int16_t end_packet_magic_number;
+		memcpy(&end_packet_magic_number,math_packet+6*number_of_operands+3,2);
+
 		if ( end_packet_magic_number != 21845 ) {
 			error("Mismatched end magic number. Found %d instead.",end_packet_magic_number);
 			abort();
@@ -268,19 +262,14 @@ Packet wrap_header(Packet math_packet, u_int16_t number_of_operands, u_int8_t ty
 	mph.user_id_of_sender = 0;
 	mph.request_id = generate_random(1,4294967295);
 	mph.number_of_operands = number_of_operands;
+
 	Packet ret;
 	int header_size = 19;
 	ret.second = math_packet.second + header_size;
 	ret.first = new u_char[ret.second];
 
-	int math_packet_size = math_packet.second;
-
-	for ( int i = 0 ; i < header_size ; i++ ) {
-		ret.first[i] = ((u_char*)&mph)[i];
-	}
-	for ( int i = 0 ; i < math_packet_size ; i++ ) {
-		ret.first[i+header_size] = math_packet.first[i];
-	}
+	memcpy(ret.first,&mph,header_size);
+	memcpy(ret.first+header_size,math_packet.first,math_packet.second);
 
 	return ret;
 }
