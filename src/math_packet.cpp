@@ -23,24 +23,24 @@ public:
 		return 0;
 		// TODO
 	}
-	pair<u_char*,int> conv_to_packet(int ans) {
+	Packet conv_to_packet(int ans) {
 		// TODO
 	}
-	pair<u_char*,int> conv_to_packet() {
+	Packet conv_to_packet() {
 		// TODO
 	}
 };
 
-pair<u_char*,int> wrap_header(pair<u_char*,int> math_packet) {
+Packet wrap_header(Packet math_packet) {
 	// TODO
 }
 
-pair<u_char*,int> make_packet_from_expression(std::string math_expression) {
+Packet make_packet_from_expression(std::string math_expression) {
 	ReversePolishExpression rpe(math_expression);
-	pair<u_char*,int> math_packet = rpe.conv_to_packet();
+	Packet math_packet = rpe.conv_to_packet();
 	return wrap_header(math_packet);
 }
 
-pair<u_char*,int> make_answer_packet(u_char* request_packet) {
+Packet make_answer_packet(u_char* request_packet) {
 	// TODO
 }
