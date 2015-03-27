@@ -290,75 +290,94 @@ int read_answer(Packet &packet) {
 }
 
 Packet capture_math_packet() {
-	while ( true ) {
-		pcap_pkthdr hdr;
-		u_char* packet = const_cast<u_char*> (pcap_next(handle,&hdr));
-		int length = hdr.len;
-
-		Packet p;
-		p.first = packet;
-		p.second = length;
-
-		p = unwrap_datalink(p);
-
-		MathPacketHeader *mph = (MathPacketHeader*)p.first;
-
-		if ( ! mph ) {
-			continue;
-		}
-		if ( mph->magic_number != MATH_MAGIC ) {
-			continue;
-		}
-		return p;
-	}
+	Packet p;
+	while ( ! is_capture_math_packet(p) ) {}
+	return p;
 }
 
 Packet capture_math_packet(u_int8_t type) {
-	while ( true ) {
-		Packet p = capture_math_packet();
-		MathPacketHeader *mph = extract_math_packet_header(p);
-
-		if ( mph->type_of_packet != type ) {
-			continue;
-		}
-		return p;
-	}
+	Packet p;
+	while ( ! is_capture_math_packet(p,type) ) {}
+	return p;
 }
 
 Packet capture_math_packet(u_int8_t type, u_int32_t requester) {
-	while ( true ) {
-		Packet p = capture_math_packet(type);
-		MathPacketHeader *mph = extract_math_packet_header(p);
-
-		if ( mph->user_id_of_requester != requester ) {
-			continue;
-		}
-		return p;
-	}
+	Packet p;
+	while ( ! is_capture_math_packet(p,type,requester) ) {}
+	return p;
 }
 
 Packet capture_math_packet(u_int8_t type, u_int32_t requester, u_int32_t req_id) {
-	while ( true ) {
-		Packet p = capture_math_packet(type, requester);
-		MathPacketHeader *mph = extract_math_packet_header(p);
-
-		if ( mph->request_id != req_id ) {
-			continue;
-		}
-		return p;
-	}
+	Packet p;
+	while ( ! is_capture_math_packet(p,type,requester,req_id) ) {}
+	return p;
 }
 
 Packet capture_math_packet(u_int8_t type, u_int32_t requester, u_int32_t req_id, u_int32_t sender) {
-	while ( true ) {
-		Packet p = capture_math_packet(type, requester, req_id);
-		MathPacketHeader *mph = extract_math_packet_header(p);
+	Packet p;
+	while ( ! is_capture_math_packet(p,type,requester,req_id,sender) ) {}
+	return p;
+}
 
-		if ( mph->user_id_of_sender != sender ) {
-			continue;
-		}
-		return p;
+bool is_capture_math_packet(Packet &p) {
+	pcap_pkthdr hdr;
+	u_char* packet = const_cast<u_char*> (pcap_next(handle,&hdr));
+	int length = hdr.len;
+
+	p.first = packet;
+	p.second = length;
+
+	p = unwrap_datalink(p);
+
+	MathPacketHeader *mph = (MathPacketHeader*)p.first;
+
+	if ( ! mph ) {
+		return false;
 	}
+	if ( mph->magic_number != MATH_MAGIC ) {
+		return false;
+	}
+	return true;
+}
+
+bool is_capture_math_packet(Packet &p, u_int8_t type) {
+	bool ret = is_capture_math_packet(p);
+	bool condition;
+	if ( ret ) {
+		MathPacketHeader *mph = extract_math_packet_header(p);
+		condition = (mph->type_of_packet == type);
+	}
+	return ret && condition;
+}
+
+bool is_capture_math_packet(Packet &p, u_int8_t type, u_int32_t requester) {
+	bool ret = is_capture_math_packet(p,type);
+	bool condition;
+	if ( ret ) {
+		MathPacketHeader *mph = extract_math_packet_header(p);
+		condition = (mph->user_id_of_requester == requester);
+	}
+	return ret && condition;
+}
+
+bool is_capture_math_packet(Packet &p, u_int8_t type, u_int32_t requester, u_int32_t req_id) {
+	bool ret = is_capture_math_packet(p,type,requester);
+	bool condition;
+	if ( ret ) {
+		MathPacketHeader *mph = extract_math_packet_header(p);
+		condition = (mph->request_id == req_id);
+	}
+	return ret && condition;
+}
+
+bool is_capture_math_packet(Packet &p, u_int8_t type, u_int32_t requester, u_int32_t req_id, u_int32_t sender) {
+	bool ret = is_capture_math_packet(p,type,req_id);
+	bool condition;
+	if ( ret ) {
+		MathPacketHeader *mph = extract_math_packet_header(p);
+		condition = (mph->user_id_of_sender == sender);
+	}
+	return ret && condition;
 }
 
 MathPacketHeader* extract_math_packet_header(Packet p) {

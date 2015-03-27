@@ -61,6 +61,12 @@ Packet capture_math_packet(u_int8_t type, u_int32_t requester);
 Packet capture_math_packet(u_int8_t type, u_int32_t requester, u_int32_t req_id);
 Packet capture_math_packet(u_int8_t type, u_int32_t requester, u_int32_t req_id, u_int32_t sender);
 
+bool is_capture_math_packet(Packet &p);
+bool is_capture_math_packet(Packet &p, u_int8_t type);
+bool is_capture_math_packet(Packet &p, u_int8_t type, u_int32_t requester);
+bool is_capture_math_packet(Packet &p, u_int8_t type, u_int32_t requester, u_int32_t req_id);
+bool is_capture_math_packet(Packet &p, u_int8_t type, u_int32_t requester, u_int32_t req_id, u_int32_t sender);
+
 MathPacketHeader* extract_math_packet_header(Packet p);
 
 #endif
