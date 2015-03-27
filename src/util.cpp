@@ -21,6 +21,8 @@ static char TEMPOUT[BUFSIZE];
 
 extern char * interface;
 
+int own_id;
+
 // Parameter management
 
 int handle_params(int argc, char ** argv) {
@@ -41,6 +43,7 @@ int handle_params(int argc, char ** argv) {
 
     static struct option long_options[] =
       {
+        {"machineid", required_argument, &own_id        ,  1},
         {"verbose"  , no_argument      , &verbose_flag  ,  1},
         {"debug"    , no_argument      , &debug_flag    ,  1},
         {"help"     , no_argument      , &help_flag     ,  1},
@@ -58,12 +61,19 @@ int handle_params(int argc, char ** argv) {
     switch (c)
       {
       case 0:
+        if ( long_options[option_index].flag == &own_id ) {
+          own_id = atoi(optarg);
+        }
         break;
 
       default:
         cerr << "Invalid option. Try " << argv[0] << " -h for help. Quitting.\n";
         return -1;
       }
+  }
+
+  if ( own_id <= 0 ) {
+    own_id = generate_random(1,4294967295);
   }
 
   if (help_flag) {
