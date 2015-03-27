@@ -4,6 +4,7 @@
 #define UTIL_H
 
 #include <ctime>
+#include <algorithm>
 
 int handle_params(int argc, char ** argv);
 
@@ -26,5 +27,7 @@ public:
 };
 
 int generate_random(int l, int r); // Generates a random integer in range [l,r]
+
+typedef std::pair<u_char*,int> Packet;
 
 #endif

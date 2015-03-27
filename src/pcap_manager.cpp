@@ -2,6 +2,7 @@
 
 #include "pcap_manager.h"
 #include "util.h"
+#include "protocol_headers.h"
 #include <cstdlib>
 #include <pcap.h>
 
@@ -63,4 +64,34 @@ void initialize() {
 
   verbose("Opened interface %s.",interface);
   debug("Datalink is %d.", datalink);
+}
+
+Packet wrap_datalink(Packet p) {
+  // TODO
+}
+
+Packet unwrap_datalink(Packet p) {
+  u_char* packet = p.first;
+  int length = p.second;
+
+  if ( packet == NULL ) {
+    return p;
+  }
+
+  if ( datalink ==  DLT_PRISM_HEADER ) {
+    prism_header* rth1 = (prism_header*)(packet);
+    packet = packet + rth1->msglen;
+    length -= rth1->msglen;
+  }
+
+  if ( datalink == DLT_IEEE802_11_RADIO ) {
+    ieee80211_radiotap_header* rth2 = (ieee80211_radiotap_header*)(packet);
+    packet = packet + rth2->it_len;
+    length -= rth2->it_len;
+  }
+
+  Packet ret;
+  ret.first = packet;
+  ret.second = length;
+  return ret;
 }
