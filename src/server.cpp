@@ -24,64 +24,18 @@ int main(int argc, char ** argv) {
   verbose("Initialization done.");
 
   while ( true ) {
-    pcap_pkthdr hdr;
-    u_char* packet = const_cast<u_char*> (pcap_next(handle,&hdr));
-
-    int length = hdr.len;
-    Packet p;
-    p.first = packet;
-    p.second = length;
-    p = unwrap_datalink(p);
-
-    MathPacketHeader *mph = (MathPacketHeader *)p.first;
-
-    if ( !mph ) {
-      continue;
-    }
-
-    if ( mph->magic_number != MATH_MAGIC ) {
-      continue;
-    }
-
-    verbose("Captured a MATH packet");
-
-    if ( mph->type_of_packet != MATH_TYPE_REQUEST ) {
-      continue;
-    }
-
-    Packet answer = make_answer_packet(p.first);
-    make_ack_packet(p);
-
+    Packet p = capture_math_packet(MATH_TYPE_REQUEST);
+    make_ack_packet(p); // TODO: Check if this location is OK since it modifies p
     pcap_sendpacket(handle,p.first,p.second);
 
-    while ( true ) {
+    MathPacketHeader *mph = extract_math_packet_header(p);
+
+    Packet answer = make_answer_packet(p.first);
+
+    Packet p_ack_ans;
+
+    while ( !is_capture_math_packet(p_ack_ans,MATH_TYPE_ACK_ANSWER,mph->user_id_of_requester, mph->request_id) ) {
       pcap_sendpacket(handle,answer.first,answer.second);
-
-      packet = const_cast<u_char*> (pcap_next(handle,&hdr));
-      length = hdr.len;
-
-      p.first = packet;
-      p.second = length;
-      p = unwrap_datalink(p);
-
-      MathPacketHeader* mph2 = (MathPacketHeader *)p.first;
-      if ( mph2->magic_number != MATH_MAGIC ) {
-        continue;
-      }
-
-      if ( mph2->type_of_packet != MATH_TYPE_ACK_ANSWER ) {
-        continue;
-      }
-
-      if ( mph2->user_id_of_requester != mph->user_id_of_requester ) {
-        continue;
-      }
-
-      if ( mph2->request_id != mph2->request_id ) {
-        continue;
-      }
-
-      break;
     }
   }
 
