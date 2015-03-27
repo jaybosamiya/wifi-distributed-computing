@@ -192,7 +192,9 @@ public:
 				c++;
 			}
 			handle_operator(*c);
-			c++;
+			while ( *c == ' ' || *c == '\t' || *c == '\n' ) {
+				c++;
+			}
 		}
 		if ( operators.size() != operands.size() - 1 ) {
 			error("Wrong number of operators/operands (%d/%d)",operators.size(),operands.size());
