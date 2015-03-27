@@ -29,6 +29,8 @@ int main(int argc, char ** argv) {
 
     print_packet(p);
 
+    p = wrap_datalink(p);
+
     pcap_sendpacket(handle, p.first, p.second);
     verbose("Sent packet");
 
