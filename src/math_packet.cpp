@@ -90,25 +90,41 @@ class ReversePolishExpression {
 	void handle_operator(char op) {
 		static stack<int> oper;
 		int o = conv_to_operator(op);
-		if ( oper.empty() ) {
+		if ( oper.empty() && o != END_OF_EXPRESSION ) {
 			oper.push(o);
 			return;
 		}
 		while ( !oper.empty() ) {
-			if ( oper.top() == OPEN_BRACKET ) {
-				oper.pop();
-			} else if ( precedence(oper.top()) <= precedence(o) ) {
+			if ( o == END_OF_EXPRESSION ) {
 				int t = oper.top();
 				oper.pop();
 				operators.push_back(t);
-				*(number_of_operators_after_operand.rbegin())++;
-			} else {
-				if ( o != CLOSE_BRACKET && o != END_OF_EXPRESSION ) {
-					oper.push(o);
+				(*number_of_operators_after_operand.rbegin())++;
+				continue;
+			}
+			if ( precedence(oper.top()) >= precedence(o) ) {
+				if ( oper.top() != OPEN_BRACKET ) {
+					int t = oper.top();
+					oper.pop();
+					operators.push_back(t);
+					(*number_of_operators_after_operand.rbegin())++;
+				} else {
+					break;
 				}
+			} else {
 				break;
 			}
 		}
+		if ( o == CLOSE_BRACKET ) {
+			if ( !oper.empty() && oper.top() == OPEN_BRACKET ) {
+				oper.pop();
+				return;
+			} else {
+				error("Bracketing messed up");
+				abort();
+			}
+		}
+		oper.push(o);
 	}
 
 	static int32_t run_op(int32_t a, u_int8_t o, int32_t b) {
@@ -177,9 +193,8 @@ public:
 			handle_operator(*c);
 			c++;
 		}
-		handle_operator('\0');
 		if ( operators.size() != operands.size() - 1 ) {
-			error("Wrong number of operators/operands");
+			error("Wrong number of operators/operands (%d/%d)",operators.size(),operands.size());
 			abort();
 		}
 	}
@@ -211,8 +226,8 @@ public:
 		int number_of_operands = get_number_of_operands();
 		int answer = 0;
 		int end_packet_magic_number = 21845;
-		u_char* location = ret.first = new u_char[6*number_of_operands+4];
-		ret.second = 6*number_of_operands+4;
+		u_char* location = ret.first = new u_char[6*number_of_operands+5];
+		ret.second = 6*number_of_operands+5;
 		memcpy(location,&operands[0],number_of_operands*4);
 		location += number_of_operands*4;
 		memcpy(location,&operators[0],number_of_operands-1);
