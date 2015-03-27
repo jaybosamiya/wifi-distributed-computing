@@ -96,6 +96,9 @@ class ReversePolishExpression {
 			}
 		}
 	}
+	int32_t get_answer() {
+		// TODO
+	}
 public:
 	ReversePolishExpression(std::string math_expression) {
 		const char * c = math_expression.c_str();
@@ -139,11 +142,14 @@ public:
 			abort();
 		}
 	}
-	Packet conv_to_ans_packet() {
-		// TODO
-	}
 	Packet conv_to_packet() {
 		// TODO
+	}
+	Packet conv_to_ans_packet() {
+		Packet temp = conv_to_packet();
+		int number_of_operands = get_number_of_operands();
+		*(int32_t*)(temp.first+6*number_of_operands-2) = get_answer();
+		return temp;
 	}
 	u_int16_t get_number_of_operands() const {
 		return operands.size();
