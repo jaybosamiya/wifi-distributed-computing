@@ -69,13 +69,13 @@ void initialize() {
 
 u_char PRISM_WRAPPER[] = {
   0x00, 0x00, 0x00, 0x41,             // msgcode
-  0x00, 0x00, 0x00, 0x08,             // msglen
+  0x08, 0x00, 0x00, 0x00,             // msglen
 };
 
 u_char RADIOTAP_WRAPPER[] = {
   0x00,                   // it_version
   0x00, 0x00,             // padding
-  0x00, 0x09,             // length
+  0x09, 0x00,             // length
   0x00, 0x00, 0x00, 0x00, // Don't put any fields
 };
 
