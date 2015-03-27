@@ -28,7 +28,8 @@ int main(int argc, char ** argv) {
     verbose("Received Request Packet");
     print_packet(p);
     make_ack_packet(p); // TODO: Check if this location is OK since it modifies p
-    pcap_sendpacket(handle,p.first,p.second);
+    Packet p_ack = wrap_datalink(p);
+    pcap_sendpacket(handle,p_ack.first,p_ack.second);
     verbose("Sent acknowledgement");
 
     MathPacketHeader *mph = extract_math_packet_header(p);
