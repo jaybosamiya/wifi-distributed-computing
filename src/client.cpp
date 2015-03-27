@@ -21,9 +21,12 @@ int main(int argc, char ** argv) {
 
   initialize();
 
+  verbose("Initialization done.");
+
   while ( true ) {
     pcap_pkthdr hdr;
     u_char* packet = const_cast<u_char*> (pcap_next(handle,&hdr));
+
     int length = hdr.len;
     Packet p;
     p.first = packet;
@@ -31,9 +34,16 @@ int main(int argc, char ** argv) {
     p = unwrap_datalink(p);
 
     MathPacketHeader *mph = (MathPacketHeader *)p.first;
+
+    if ( !mph ) {
+      continue;
+    }
+
     if ( mph->magic_number != MATH_MAGIC ) {
       continue;
     }
+
+    verbose("Captured a MATH packet");
 
     if ( mph->type_of_packet != MATH_TYPE_REQUEST ) {
       continue;
