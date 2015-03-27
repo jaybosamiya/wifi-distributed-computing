@@ -5,8 +5,8 @@
 #include <cstdlib>
 #include <pcap.h>
 
-static pcap_t *handle = NULL;
-static int datalink;
+pcap_t *handle = NULL;
+int datalink;
 char * interface;
 
 // Place the interface into monitor mode
