@@ -100,6 +100,8 @@ int handle_params(int argc, char ** argv) {
     cerr << "No interface specified. Try " << argv[0] << " -h for help. Quitting.\n";
     return -1;
   }
+
+  return 0;
 }
 
 // Flag management
