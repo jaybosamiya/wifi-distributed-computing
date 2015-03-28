@@ -26,9 +26,7 @@ int main(int argc, char ** argv) {
   while ( true ) {
     Packet p = capture_math_packet(MATH_TYPE_REQUEST);
     verbose("Received Request Packet");
-    print_packet(p);
     make_ack_packet(p);
-    print_packet(p);
     Packet p_ack = wrap_datalink(p);
     pcap_sendpacket(handle,p_ack.first,p_ack.second);
     verbose("Sent acknowledgement");
