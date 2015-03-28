@@ -10,7 +10,7 @@
 using namespace std;
 
 int main(int argc, char ** argv) {
-  cout << "WiFi Math Server\n"
+  cout << "WiFi Math Client\n"
           "----------------\tBy Jay H. Bosamiya\n"
           "                \t------------------\n\n";
 
