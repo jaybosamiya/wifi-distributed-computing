@@ -40,18 +40,31 @@ int main(int argc, char ** argv) {
 
     int counter = 0;
 
-    while (!is_capture_math_packet(p_ack, MATH_TYPE_ACK_REQUEST, mph->user_id_of_requester, mph->request_id) ) {
+    while (!is_capture_math_packet(p_ack, MATH_TYPE_ACK_REQUEST) ) {
       counter = (counter+1)%2000;
       if ( counter == 0 )
         pcap_sendpacket(handle, p.first, p.second);
       usleep(100);
     }
 
-    verbose("Got Acknowledgement of Request");
+    verbose("Got Acknowledgement of Request. Waiting for answer.");
 
-    Packet p_ans = capture_math_packet(MATH_TYPE_SEND_ANSWER, mph->user_id_of_requester, mph->request_id, extract_math_packet_header(p_ack)->user_id_of_sender);
+    Packet p_ans = capture_math_packet(MATH_TYPE_SEND_ANSWER);
 
-    cout << "Answer: " << read_answer(p_ans) << "\n\n";
+    verbose("Got Answer");
+
+    int ans = read_answer(p_ans);
+
+    make_ack_packet(p_ans);
+    p_ans = wrap_datalink(p_ans);
+
+    for ( int i = 0 ; i < 100 ; i++ ) {
+      pcap_sendpacket(handle,p_ans.first,p_ans.second);
+    }
+
+    verbose("Sent acknowledgement for receiving answer");
+
+    cout << "Answer: " << ans << "\n\n";
 
   }
 
