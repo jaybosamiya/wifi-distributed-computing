@@ -27,8 +27,6 @@ int main(int argc, char ** argv) {
   getline(cin,expression);
   Packet p = make_packet_from_expression(expression);
 
-  print_packet(p);
-
   p = wrap_datalink(p);
 
   pcap_sendpacket(handle, p.first, p.second);
