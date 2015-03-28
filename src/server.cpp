@@ -42,14 +42,21 @@ int main(int argc, char ** argv) {
 
     debug("Got mph");
 
-    Packet answer = make_answer_packet(p.first);
+    Packet answer = wrap_datalink(make_answer_packet(p.first));
 
-    debug("Got answer packet");
+    debug("Generated answer packet");
 
     Packet p_ack_ans;
 
-    while ( !is_capture_math_packet(p_ack_ans,MATH_TYPE_ACK_ANSWER,mph->user_id_of_requester, mph->request_id) ) {
-      pcap_sendpacket(handle,answer.first,answer.second);
+    int counter = 0;
+
+    while ( !is_capture_math_packet(p_ack_ans,MATH_TYPE_ACK_ANSWER) ) {
+      if ( counter == 0 ) {
+        pcap_sendpacket(handle,answer.first,answer.second);
+        debug("Sent answer");
+      }
+      counter = (counter+1) % 200;
+      usleep(100);
     }
 
     verbose("Finished sending reply");
