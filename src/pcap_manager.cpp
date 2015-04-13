@@ -88,12 +88,13 @@ u_char PRISM_WRAPPER[] = {
 u_char RADIOTAP_WRAPPER[] = {
   0x00,                   // it_version
   0x00,                   // padding
-  0x08, 0x00,             // length
-  0x00, 0x00, 0x00, 0x00, // Don't put any fields
+  0x0a, 0x00,             // length
+  0x00, 0x00, 0x80, 0x00, // IEEE80211_RADIOTAP_TX_FLAGS
+  0x00, 0x08,             // no-ack required
 };
 
 const Packet PRISM_WRAP(PRISM_WRAPPER,8);
-const Packet RADIOTAP_WRAP(RADIOTAP_WRAPPER,8);
+const Packet RADIOTAP_WRAP(RADIOTAP_WRAPPER,0x0a);
 
 Packet wrap_packet_with(Packet p, Packet wrap) {
   u_char* packet = new u_char[p.second+wrap.second];
