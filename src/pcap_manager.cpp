@@ -57,7 +57,7 @@ void initialize() {
   }
 
   struct bpf_program fp;   /* The compiled filter expression */
-  char filter_exp[] = "ether[0]==0x1a && ether[1]==0x14 && ether[2]==0x95 && ether[3]==0x00"; /* The filter expression */
+  char filter_exp[] = "ether[24]==0x1a && ether[25]==0x14 && ether[26]==0x95 && ether[27]==0x00"; /* The filter expression */
 
   if (pcap_compile(handle, &fp, filter_exp, 0, 0) == -1) {
     error("Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(handle));
@@ -93,6 +93,15 @@ u_char RADIOTAP_WRAPPER[] = {
   0x00, 0x08,             // no-ack required
 };
 
+u_char IEEE80211_WRAPPER[] = {
+  0x08, 0x01, 0x00, 0x00,             // Frame control + duration
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // Address 1 (broadcast)
+  0x13, 0x22, 0x33, 0x44, 0x55, 0x66, // Address 2
+  0x13, 0x22, 0x33, 0x44, 0x55, 0x66, // Address 3
+  0x10, 0x86,                         // Sequence control
+};
+
+const Packet IEEE80211_WRAP(IEEE80211_WRAPPER,0x18);
 const Packet PRISM_WRAP(PRISM_WRAPPER,8);
 const Packet RADIOTAP_WRAP(RADIOTAP_WRAPPER,0x0a);
 
@@ -113,6 +122,8 @@ Packet wrap_datalink(Packet p) {
   if ( p.first == NULL ) {
     return p;
   }
+
+  p = wrap_packet_with(p,IEEE80211_WRAP);
 
   if ( datalink ==  DLT_PRISM_HEADER ) {
     p = wrap_packet_with(p,PRISM_WRAP);
@@ -144,6 +155,9 @@ Packet unwrap_datalink(Packet p) {
     packet = packet + rth2->it_len;
     length -= rth2->it_len;
   }
+
+  packet = packet + IEEE80211_WRAP.second;
+  length -= IEEE80211_WRAP.second;
 
   Packet ret;
   ret.first = packet;
